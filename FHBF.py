@@ -134,7 +134,7 @@ def compute_eval_measures_dist(dlr, T, y_T, y_score, y_pred):
     return [acc, sens, spec, recall, prec, roc_auc, tpr, fpr];
 
 
-def HDBF(train_filepaths,test_filepath,target_feature,fg,r,rd,imp,method,matcher,case_num):
+def FHBF(train_filepaths,test_filepath,target_feature,fg,r,rd,imp,method,matcher,case_num):
     # eta = 0.7;
     num_trees_faidra_list = [20];
     for num_trees_faidra in num_trees_faidra_list:
@@ -421,13 +421,13 @@ def HDBF(train_filepaths,test_filepath,target_feature,fg,r,rd,imp,method,matcher
     
     plt.plot(fpr_final,
              tpr_final,
-             # label=r'ROC HDBF, start = %s, end = %s (AUC = %s)' % (train_filepaths[0].split('/')[2].split('.')[0], 
+             # label=r'ROC FHBF, start = %s, end = %s (AUC = %s)' % (train_filepaths[0].split('/')[2].split('.')[0], 
              #                                                       test_filepath.split('/')[2].split('.')[0], 
              #                                                       np.around(roc_auc,3)),  
              label=r'FHBF (AUC = %s)' % (np.around(roc_auc,2)),  
              lw=2, 
              alpha=.8);
-    # plt.title('number of HDBF rounds = ' + str(num_trees_faidra));
+    # plt.title('number of FHBF rounds = ' + str(num_trees_faidra));
     plt.plot([0, 1], [0, 1], linestyle='--', lw=1, color='k')
     plt.xlabel('FPR (1-specificity)');
     plt.ylabel('TPR');
@@ -956,7 +956,7 @@ for filepaths in filepathss:
         case.append('case'+str(c1));
         algos.append('FGBT_rd_'+str(rd));
 
-    [loss, X_dists, shs, acc, sens, spec, recall, _, roc_auc] = HDBF(train_filepaths,
+    [loss, X_dists, shs, acc, sens, spec, recall, _, roc_auc] = FHBF(train_filepaths,
                                                                 test_filepath[0],
                                                                 target_feature,
                                                                 fg,
@@ -1029,23 +1029,23 @@ if (proceed_plot == 1):
         GBT_loss = losssss[k][0];
         DART_1_loss = losssss[k][1];
         DART_2_loss = losssss[k][2];
-        HDBF_loss = losssss[k][3];
+        FHBF_loss = losssss[k][3];
         
         GBT_loss = np.array([float(s.split(':')[1]) for s in GBT_loss])
         DART_1_loss = np.array([float(s.split(':')[1]) for s in DART_1_loss])
         DART_2_loss = np.array([float(s.split(':')[1]) for s in DART_2_loss])
         
-        HDBF_loss_new = [];
-        for i in range(0,len(HDBF_loss)):
-            HDBF_loss_new.append(np.array([float(s.split(':')[1]) for s in HDBF_loss[i]]))
+        FHBF_loss_new = [];
+        for i in range(0,len(FHBF_loss)):
+            FHBF_loss_new.append(np.array([float(s.split(':')[1]) for s in FHBF_loss[i]]))
         
-        HDBF_loss_new_good = [x for i,x in enumerate(HDBF_loss_new) 
-                              if np.mean(HDBF_loss_new[i]) <= np.mean(HDBF_loss_new)];
+        FHBF_loss_new_good = [x for i,x in enumerate(FHBF_loss_new) 
+                              if np.mean(FHBF_loss_new[i]) <= np.mean(FHBF_loss_new)];
         
         dfloss.append(GBT_loss)
         dfloss.append(DART_1_loss)
         dfloss.append(DART_2_loss)
-        dfloss.append(np.nanmean(HDBF_loss_new_good,0))
+        dfloss.append(np.nanmean(FHBF_loss_new_good,0))
         
         for j in range(0,len(losssss[0][0])):
             method_.append('FGBT')
@@ -1062,22 +1062,22 @@ if (proceed_plot == 1):
             cases_.append('case '+str(k+1));
             cohs_.append(fpaths[j]);
             
-        for j in range(0,len(HDBF_loss_new_good[0])):
+        for j in range(0,len(FHBF_loss_new_good[0])):
             method_.append('FHBF');
             cases_.append('case '+str(k+1));
             cohs_.append(fpaths[j]);
         
         ps = [];
-        for u in range(0,len(HDBF_loss_new_good)):
-            ps.append(np.mean(HDBF_loss_new_good[u]));
+        for u in range(0,len(FHBF_loss_new_good)):
+            ps.append(np.mean(FHBF_loss_new_good[u]));
         m_ind = np.where(ps == min(ps))[0][0];
         
         plt.subplot(2,5,k+1)
         plt.plot(GBT_loss, 'o-', label='FGBT', alpha=0.7)
         plt.plot(DART_1_loss, 'o-', label='FDART, rate_drop=0.1', alpha=0.7)
         plt.plot(DART_2_loss, 'o-', label='FDART, rate_drop=0.2', alpha=0.7)
-        # plt.plot(np.nanmean(HDBF_loss_new_good,0), 'o-', label='FHBF', alpha=0.7)
-        plt.plot(HDBF_loss_new_good[m_ind], 'o-', label='FHBF', alpha=0.7)
+        # plt.plot(np.nanmean(FHBF_loss_new_good,0), 'o-', label='FHBF', alpha=0.7)
+        plt.plot(FHBF_loss_new_good[m_ind], 'o-', label='FHBF', alpha=0.7)
         plt.xticks(np.array(range(0,len(GBT_loss))),np.array(range(1,len(GBT_loss)+1)))
         plt.xlabel('case '+str(k+1))
         plt.ylabel('')
@@ -1121,23 +1121,23 @@ if (proceed_plot == 1):
         GBT_loss = losssss[k][0];
         DART_1_loss = losssss[k][1];
         DART_2_loss = losssss[k][2];
-        HDBF_loss = losssss[k][3];
+        FHBF_loss = losssss[k][3];
         
         GBT_loss = np.array([float(s.split(':')[1]) for s in GBT_loss])
         DART_1_loss = np.array([float(s.split(':')[1]) for s in DART_1_loss])
         DART_2_loss = np.array([float(s.split(':')[1]) for s in DART_2_loss])
         
-        HDBF_loss_new = [];
-        for i in range(0,len(HDBF_loss)):
-            HDBF_loss_new.append(np.array([float(s.split(':')[1]) for s in HDBF_loss[i]]))
+        FHBF_loss_new = [];
+        for i in range(0,len(FHBF_loss)):
+            FHBF_loss_new.append(np.array([float(s.split(':')[1]) for s in FHBF_loss[i]]))
         
-        HDBF_loss_new_good = [x for i,x in enumerate(HDBF_loss_new) 
-                              if np.mean(HDBF_loss_new[i]) <= np.mean(HDBF_loss_new)];
+        FHBF_loss_new_good = [x for i,x in enumerate(FHBF_loss_new) 
+                              if np.mean(FHBF_loss_new[i]) <= np.mean(FHBF_loss_new)];
         
         dfloss.append(GBT_loss)
         dfloss.append(DART_1_loss)
         dfloss.append(DART_2_loss)
-        dfloss.append(np.nanmean(HDBF_loss_new_good,0))
+        dfloss.append(np.nanmean(FHBF_loss_new_good,0))
         
         for j in range(0,len(losssss[0][0])):
             method_.append('FGBT')
@@ -1151,7 +1151,7 @@ if (proceed_plot == 1):
             method_.append('FDART, rate_drop=0.2')
             cases_.append('case '+str(k+1))
             
-        for j in range(0,len(HDBF_loss_new_good[0])):
+        for j in range(0,len(FHBF_loss_new_good[0])):
             method_.append('FHBF')
             cases_.append('case '+str(k+1))
         
