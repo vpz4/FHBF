@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-Created on Tue Dec  8 12:41:28 2020
 
 @author: bpez
 """
 # -*- coding: utf-8 -*-
 """
-Created on Tue Dec  8 12:41:28 2020
 
 @author: bpez
 """
